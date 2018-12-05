@@ -21,6 +21,7 @@ import br.com.alura.loja.modelo.Carrinho;
 
 public class ClienteTest {
 	private HttpServer server;
+	private Carrinho fromXML;
 
 	// Rodar antes de todos os testes
 	@Before
@@ -35,16 +36,13 @@ public class ClienteTest {
 	}
 
 	@Test
-	public void testaQueBuscarUmCarrinhoTrazOCarrinhoEsperado() {
+	public void testaQueBuscarUmCarrinhoTrasUmCarrinho() {
 
 		Client client = ClientBuilder.newClient(); // Cria cliente
 		WebTarget target = client.target("http://localhost:8080"); // Acesso ao
 																	// localhost
-		String conteudo = target.path("/carrinhos").request().get(String.class);
-		System.out.println(conteudo);
+		String conteudo = target.path("/carrinhos/1").request().get(String.class);
 		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
-		assertEquals("Rua Vergueiro 3185, 8 andar", carrinho.getRua());
-
-		server.stop();// Para o servidor
+		assertEquals("Rua Vergueiro 3185, 8 andar", fromXML.getRua());
 	}
 }
