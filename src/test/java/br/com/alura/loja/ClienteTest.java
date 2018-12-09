@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.client.ClientConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,9 @@ public class ClienteTest {
 	@Before
 	public void startaServidor() {
 		server = Servidor.inicializaServidor();
-		this.client = ClientBuilder.newClient();	//Cria o cliente
+		ClientConfig config = new ClientConfig();
+		config.register(new LogginFilter());
+		this.client = ClientBuilder.newClient(config); // Cria o cliente
 		this.target = client.target("http://localhost:8080");
 	}
 
@@ -43,7 +46,7 @@ public class ClienteTest {
 		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
 		Assert.assertEquals("Rua Vergueiro 3185, 8 andar", carrinho.getRua());
 	}
-	
+
 	@Test
 	public void testaQueSuportaNovosCarrinhos() {
 		Carrinho carrinho = new Carrinho();
@@ -52,9 +55,9 @@ public class ClienteTest {
 		carrinho.setCidade("Sao Paulo");
 		String xml = carrinho.toXML();
 		Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
-		
+
 		Response response = target.path("/carrinhos").request().post(entity);
-		Assert.assertEquals(201,  response.getStatus());
+		Assert.assertEquals(201, response.getStatus());
 		String location = response.getHeaderString("Location");
 		String conteudo = client.target(location).request().get(String.class);
 		Assert.assertTrue(conteudo.contains("Microfone"));
